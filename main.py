@@ -4,7 +4,7 @@ from fastapi import FastAPI
 import os
 import json
 import sys
-from utils.extractKeywords import extract_keywords
+# from utils.extractKeywords import extract_keywords
 from utils.searchAndScrape import search_and_scrape_parallel
 from utils.searchAndScrape import search_google
 from utils.extractKeywords import extract_keywords_using_llm

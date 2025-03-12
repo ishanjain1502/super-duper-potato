@@ -1,40 +1,40 @@
-import re
-import nltk
-from nltk.corpus import stopwords
-from collections import Counter
+# import re
+# import nltk
+# from nltk.corpus import stopwords
+# from collections import Counter
 import google.generativeai as genai
 
 # Download stopwords if not already available
-try:
-    nltk.download("stopwords", quiet=True)
-    nltk.download("punkt_tab", quiet=True)
-    nltk.download("punkt", quiet=True)
-except:
-    pass  # Handle case where downloads might fail (e.g., offline)
+# try:
+#     nltk.download("stopwords", quiet=True)
+#     nltk.download("punkt_tab", quiet=True)
+#     nltk.download("punkt", quiet=True)
+# except:
+#     pass  # Handle case where downloads might fail (e.g., offline)
 
-def extract_keywords(text, num_keywords=10):
-    # Check if text is None or empty
-    if not text:
-        return []
+# def extract_keywords(text, num_keywords=10):
+#     # Check if text is None or empty
+#     if not text:
+#         return []
         
-    # Convert text to lowercase
-    text = text.lower()
+#     # Convert text to lowercase
+#     text = text.lower()
     
-    # Remove special characters and numbers
-    text = re.sub(r"[^a-z\s]", "", text)
+#     # Remove special characters and numbers
+#     text = re.sub(r"[^a-z\s]", "", text)
 
-    # Tokenize words
-    words = nltk.word_tokenize(text)
+#     # Tokenize words
+#     words = nltk.word_tokenize(text)
 
-    # Remove stopwords
-    stop_words = set(stopwords.words("english"))
-    filtered_words = [word for word in words if word not in stop_words and word.strip()]
+#     # Remove stopwords
+#     stop_words = set(stopwords.words("english"))
+#     filtered_words = [word for word in words if word not in stop_words and word.strip()]
 
-    # Count word frequency
-    word_counts = Counter(filtered_words)
+#     # Count word frequency
+#     word_counts = Counter(filtered_words)
 
-    # Return top N keywords
-    return " ".join([word for word, _ in word_counts.most_common(num_keywords)])
+#     # Return top N keywords
+#     return " ".join([word for word, _ in word_counts.most_common(num_keywords)])
 
 def extract_keywords_using_llm(text):
     # Initialize the gemini-1.5-flash model
