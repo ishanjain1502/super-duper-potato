@@ -20,17 +20,17 @@ async def root():
 
 
 @app.get("/search/")
-async def search(search_query: str = None):
+async def search(search_query: str):
     search_results = search_google(search_query)
     return {"search_results": search_results}
 
 @app.get("/extractKeywords/")
-async def extract_keywords(search_query: str = None):
+async def extract_keywords(search_query: str):
     keywords = extract_keywords_using_llm(search_query)
     return {"keywords": keywords}
 
 @app.get("/searchAndScrape/")
-async def searchAndScrape(search_query: str = None):
+async def searchAndScrape(search_query: str):
     search_results = search_google(search_query)
         
     # Extract Indeed related data from search results
