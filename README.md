@@ -1,27 +1,34 @@
-# Deploy FastAPI on Render
+# API Live Link
 
-Use this repo as a template to deploy a Python [FastAPI](https://fastapi.tiangolo.com) service on Render.
+You can access the live API at the following link:
 
-See https://render.com/docs/deploy-fastapi or follow the steps below:
+[Live API](https://featurely-draft1.onrender.com/)
 
-## Manual Steps
+Available routes write now:
 
-1. You may use this repository directly or [create your own repository from this template](https://github.com/render-examples/fastapi/generate) if you'd like to customize the code.
-2. Create a new Web Service on Render.
-3. Specify the URL to your new repository or this repository.
-4. Render will automatically detect that you are deploying a Python service and use `pip` to download the dependencies.
-5. Specify the following as the Start Command.
+"""
+API Endpoints:
 
-    ```shell
-    uvicorn main:app --host 0.0.0.0 --port $PORT
-    ```
+1. @app.get("/search/")
+    - **Description**: This endpoint performs a search operation using the provided search query.
+    - **Parameters**: 
+      - `search_query` (str, optional): The query string to search for.
+    - **Returns**: A JSON object containing the search results.
+    - **Access**: This endpoint can be accessed via an HTTP GET request to `/search/`.
 
-6. Click Create Web Service.
+2. @app.get("/extractKeywords/")
+    - **Description**: This endpoint extracts keywords from the provided search query using a language model.
+    - **Parameters**: 
+      - `search_query` (str, optional): The query string from which to extract keywords.
+    - **Returns**: A JSON object containing the extracted keywords.
+    - **Access**: This endpoint can be accessed via an HTTP GET request to `/extractKeywords/`.
 
-Or simply click:
+3. @app.get("/searchAndScrape/")
+    - **Description**: This endpoint performs a search operation and scrapes the results.
+    - **Parameters**: None specified in the provided code.
+    - **Returns**: The specific return value is not provided in the given code.
+    - **Access**: This endpoint can be accessed via an HTTP GET request to `/searchAndScrape/`.
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/render-examples/fastapi)
+Other API routes for LLM based persona generation have been muted as of now, as the link in between is broken, though the related code can be found at utils.personaUtils.py
 
-## Thanks
-
-Thanks to [Harish](https://harishgarg.com) for the [inspiration to create a FastAPI quickstart for Render](https://twitter.com/harishkgarg/status/1435084018677010434) and for some sample code!
+"""
