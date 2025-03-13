@@ -58,8 +58,8 @@ async def searchAndScrape(search_query: str):
     print(f"Collected snapshots --> {collected_snapshots}\n\n")
     
     finalResponse = await polling_data_from_brightdata(collected_snapshots)
-    if finalResponse.get('status') == 'failed':
-        return {"data": "scraping results failed on bright data"}
+    if finalResponse[0].get('status') == 'failed':
+        return {"data": "scraping results failed on bridght data"}
     
     # Define feature questions for persona generation
     featureQuestions = [
