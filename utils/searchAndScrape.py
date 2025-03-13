@@ -61,7 +61,7 @@ def fetch_google_search_results(query, g_api_key, cx, platform):
         print(f"Error fetching search results: {error}")
         return []
 
-def search_google(query):
+async def search_google(query):
     try:
         # Format the search query
         query = query.strip()
@@ -75,7 +75,7 @@ def search_google(query):
         llm_generated_queries = [];
         # Generate search queries for different platforms
         prompt = f"Generate keywords out of given Text: '{query}'. Return only the keywords, no explanations."
-        response = call_gemini(prompt)
+        response = await call_gemini(prompt)
         # print(f"response --> {response}")
         platforms = ["linkedin", "reddit", "indeed"]
         for i in range(1, 4):
@@ -213,26 +213,40 @@ async def polling_data_from_brightdata(snapshots):
     responses = []
     bdata_api_key = 'b1588c6901512843fa2122576118c81f8da15206ae533ffe792a05fbaba0ca93'
     
-    for snapshot in snapshots:
-        url = f"https://api.brightdata.com/datasets/v3/snapshot/{snapshot}"
-        querystring = {"format":"json"}
-        headers = {"Authorization": f"Bearer {bdata_api_key}",}
-        
-        max_retries = 5
-        retry_delay = 30  # seconds
-        
-        for attempt in range(max_retries):
-            response = requests.request("GET", url, headers=headers, params=querystring)
-            data = response.json()
+    async with aiohttp.ClientSession() as session:
+        for snapshot in snapshots:
+            url = f"https://api.brightdata.com/datasets/v3/snapshot/{snapshot}"
+            querystring = {"format":"json"}
+            headers = {"Authorization": f"Bearer {bdata_api_key}"}
             
-            if 'status' in data and data['status'] == 'running':
-                print(f"Attempt {attempt + 1}: Data still running for snapshot {snapshot}... Retrying in {retry_delay} seconds")
-                if attempt < max_retries - 1:
-                    await asyncio.sleep(retry_delay)
-                else:
-                    print(f"Max retries reached for snapshot {snapshot}. Moving to next snapshot.")
-            else:
-                responses.append(data)
-                break  # Exit the retry loop if we got a non-running status
-                
+            max_retries = 10
+            retry_delay = 30  # seconds
+            
+            for attempt in range(max_retries):
+                try:
+                    async with session.get(url, headers=headers, params=querystring) as response:
+                        if response.status:
+                            data = await response.json()
+                            
+                            if 'status' in data and data['status'] == 'running':
+                                print(f"Attempt {attempt + 1}: Data still running for snapshot {snapshot}... Retrying in {retry_delay} seconds")
+                                if attempt < max_retries - 1:
+                                    await asyncio.sleep(retry_delay)
+                                else:
+                                    print(f"Max retries reached for snapshot {snapshot}. Moving to next snapshot.")
+                                    # Add a partial response to indicate we tried but couldn't get complete data
+                                    return [{ "status": "failed"}]
+                                    responses.append({"snapshot_id": snapshot, "status": "timeout", "error": "Max retries reached"})
+                            else:
+                                responses.append(data)
+                                break  # Exit the retry loop if we got a non-running status
+                        else:
+                            print(f"Error: HTTP status {response.status} for snapshot {snapshot}")
+                            responses.append({"snapshot_id": snapshot, "status": "error", "http_status": response.status})
+                            break
+                except Exception as e:
+                    print(f"Exception during API call for snapshot {snapshot}: {str(e)}")
+                    if attempt == max_retries - 1:
+                        responses.append({"snapshot_id": snapshot, "status": "error", "message": str(e)})
+    
     return responses
