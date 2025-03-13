@@ -1,8 +1,11 @@
 import requests
 import json
 import os
+import asyncio
+import aiohttp
 from datetime import datetime
 from utils.extractKeywords import call_gemini
+
 
 def fetch_google_search_results(query, g_api_key, cx, platform):
     url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={g_api_key}&cx={cx}"
@@ -15,7 +18,6 @@ def fetch_google_search_results(query, g_api_key, cx, platform):
         reddit_posts = []
         
         if 'items' in data:
-            print("Search Results:")
             for item in data['items']:
                 if platform == 'linkedin':
                     # Check if the link is a LinkedIn profile
@@ -110,7 +112,6 @@ def scrape_url(search_result):
                 data=data
             )
             response_data = response.json()
-            print(f"responseData --> {response_data}")
             return response_data
         except Exception as error:
             print(f"Error: {error}")
@@ -149,3 +150,89 @@ def search_and_scrape_parallel(query):
     else:
         print('No data to save to file')
         return {"searchResults": search_results}
+    
+def scrape_url_linkedin(search_result):
+    try:
+        data = json.dumps(search_result)
+        # You would need to define this variable in your actual implementation
+        bdata_api_key = 'b1588c6901512843fa2122576118c81f8da15206ae533ffe792a05fbaba0ca93'
+        
+        try:
+            response = requests.post(
+                "https://api.brightdata.com/datasets/v3/trigger?dataset_id=gd_l1viktl72bvl7bjuj0&include_errors=true",
+                headers={
+                    "Authorization": f"Bearer {bdata_api_key}",
+                    "Content-Type": "application/json"
+                },
+                data=data
+            )
+            response_data = response.json()
+            return response_data
+        except Exception as error:
+            print(f"Error: {error}")
+            return None
+    except Exception as error:
+        print(f'Error: {error}')
+        return None
+    
+def scrape_url_reddit(search_result):
+    try:
+        data = json.dumps(search_result)
+        
+        # You would need to define this variable in your actual implementation
+        bdata_api_key = 'b1588c6901512843fa2122576118c81f8da15206ae533ffe792a05fbaba0ca93'
+        try:
+            response = requests.post(
+                "https://api.brightdata.com/datasets/v3/trigger?dataset_id=gd_lvz8ah06191smkebj4&include_errors=true",
+                headers={
+                    "Authorization": f"Bearer {bdata_api_key}",
+                    "Content-Type": "application/json"
+                },
+                data=data
+            )
+        except Exception as error:
+            print(f"Error making request to Brightdata API: {error}")
+            return None
+        response_data = response.json()
+        return response_data
+        
+    except Exception as error:
+        print(f'Error: {error}')
+        return None
+
+def collect_snapshots(results):
+    snapshots = []
+    for item in results:
+        for key, value in item.items():
+            if isinstance(value, dict) and 'snapshot_id' in value:
+                snapshots.append(value['snapshot_id'])
+    return snapshots
+
+
+async def polling_data_from_brightdata(snapshots):
+    responses = []
+    bdata_api_key = 'b1588c6901512843fa2122576118c81f8da15206ae533ffe792a05fbaba0ca93'
+    
+    for snapshot in snapshots:
+        url = f"https://api.brightdata.com/datasets/v3/snapshot/{snapshot}"
+        querystring = {"format":"json"}
+        headers = {"Authorization": f"Bearer {bdata_api_key}",}
+        
+        max_retries = 5
+        retry_delay = 30  # seconds
+        
+        for attempt in range(max_retries):
+            response = requests.request("GET", url, headers=headers, params=querystring)
+            data = response.json()
+            
+            if 'status' in data and data['status'] == 'running':
+                print(f"Attempt {attempt + 1}: Data still running for snapshot {snapshot}... Retrying in {retry_delay} seconds")
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(retry_delay)
+                else:
+                    print(f"Max retries reached for snapshot {snapshot}. Moving to next snapshot.")
+            else:
+                responses.append(data)
+                break  # Exit the retry loop if we got a non-running status
+                
+    return responses
