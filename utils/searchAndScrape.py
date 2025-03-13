@@ -235,7 +235,7 @@ async def polling_data_from_brightdata(snapshots):
                                 else:
                                     print(f"Max retries reached for snapshot {snapshot}. Moving to next snapshot.")
                                     # Add a partial response to indicate we tried but couldn't get complete data
-                                    return [{ "status": "failed"}]
+                                    return { "status": "failed"}
                                     responses.append({"snapshot_id": snapshot, "status": "timeout", "error": "Max retries reached"})
                             else:
                                 responses.append(data)
