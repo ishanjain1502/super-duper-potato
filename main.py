@@ -218,7 +218,6 @@ async def searchAndScrape(search_query: str):
     
     return {"persona_results": persona_results}
 
-
 @app.get("/pollingDataFromBrightdata/")
 async def pollingDataFromBrightdata(snapshot_id: str = None):
     snapshot_ids =  ['s_m87fh8av2ec7bmcs9o', 's_m87fh8iuuf1qd5oen']
