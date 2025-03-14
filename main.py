@@ -212,7 +212,10 @@ async def searchAndScrape(search_query: str):
                 "profile": profile.get('url'),
                 "persona_answers": answers
             })
-
+            
+    if len(persona_results) == 0:
+        return {"persona_results": persona_results, "status": "failed", "message": "Try a different search query, more descriptive and specific"}
+    
     return {"persona_results": persona_results}
 
 
