@@ -26,7 +26,7 @@ API Endpoints:
 3. @app.get("/searchAndScrape/")
     - **Description**: This endpoint performs a search operation and scrapes the results.
     - **Parameters**:(str): The query string from which to extract keywords.
-    - **Returns**: This was supposed to return scraped data, but currently not working in desired manner, as their is lot of latency in output from API for linkedin and reddit.
+    - **Returns**: This will return, persona results, for the features that have been harcoded.
     - **Access**: This endpoint can be accessed via an HTTP GET request to `/searchAndScrape/`.
 
 Other API routes for LLM based persona generation have been muted as of now, as the link in between is broken, though the related code can be found at utils.personaUtils.py
