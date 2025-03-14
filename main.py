@@ -11,10 +11,20 @@ from utils.searchAndScrape import search_google, scrape_url_linkedin, scrape_url
 from utils.extractKeywords import extract_keywords_using_llm
 from utils.personaUtils import generate_answers_from_profile
 # from utils.indeedUtils import scrape_indeed_data
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
 
 # db = redis.Redis(host='localhost', port=6379, db=0)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=False,  # Must be False when using wildcard origins
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 async def root():
@@ -28,7 +38,7 @@ async def search(search_query: str):
 
 @app.get("/extractKeywords/")
 async def extract_keywords(search_query: str):
-    keywords = extract_keywords_using_llm(search_query)
+    keywords = await extract_keywords_using_llm(search_query)
     return {"keywords": keywords}
 
 @app.get("/searchAndScrape/")
