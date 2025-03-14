@@ -4,10 +4,17 @@
 # from collections import Counter
 import google.generativeai as genai
 import asyncio
+import time
 
 def extract_keywords_using_llm(text):
     # Initialize the gemini-1.5-flash model
-    genai.configure("AIzaSyBS0aour5C2lCBJJV60Bq4uad82bFO0bqs")
+    api_keys = [
+        "AIzaSyBS0aour5C2lCBJJV60Bq4uad82bFO0bqs",
+        "AIzaSyCeJ9TDbCFww4Ix-4VWzmX6K4uS_HbmeEY",
+        "AIzaSyBtKRxMRkZKnwzqxo0rXuNLNPgVGsd03HM"
+    ]
+    key_index = int(time.time()) % len(api_keys)
+    genai.configure(api_keys[key_index])
     client = genai.GenerativeModel('gemini-1.5-flash')
 
     # Generate keywords using the gemini-1.5-flash model
@@ -25,7 +32,13 @@ async def call_gemini(text):
 
 def _call_gemini_sync(text):
     try:
-        genai.configure(api_key="AIzaSyBS0aour5C2lCBJJV60Bq4uad82bFO0bqs")
+        api_keys = [
+            "AIzaSyBS0aour5C2lCBJJV60Bq4uad82bFO0bqs",
+            "AIzaSyCeJ9TDbCFww4Ix-4VWzmX6K4uS_HbmeEY",
+            "AIzaSyBtKRxMRkZKnwzqxo0rXuNLNPgVGsd03HM"
+        ]
+        key_index = int(time.time() * 100) % len(api_keys)
+        genai.configure(api_key=api_keys[key_index])
         client = genai.GenerativeModel('gemini-1.5-flash')
         prompt = f"""{text}"""
         response = client.generate_content(prompt)
